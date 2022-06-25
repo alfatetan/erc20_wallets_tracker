@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Temporary files
+temp/
+
+# Native configuration files with work API keys
+config.js
