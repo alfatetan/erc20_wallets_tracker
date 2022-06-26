@@ -5,6 +5,7 @@
 //"token" contains the tokens data wich will be used in the wallets analysis table.
 // e.g. if we want to bind for counting all USD stablecoins we can include those addresses
 // in the token address
+// "token_view" must be unique
 
 const tokens = [
   {

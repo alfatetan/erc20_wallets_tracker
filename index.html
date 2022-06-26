@@ -23,7 +23,12 @@
     <div class="topnav">
       <p class="active" id="btn-connect-mm">Connect Metamask</p>
       <p id="btn-gsheets-ld">Load spreadsheet</p>
-      <p>Refresh data</p>
+      <p>Load balances</p>
+      
+      <label class="switch">
+        <input type="checkbox" id="table-chart-view">
+        <span class="slider round"></span>
+      </label>
 
       <div class="search-container">
         <!-- <form action="/action_page.php"> -->
@@ -32,7 +37,8 @@
         <!-- </form> -->
       </div>
     </div>
-    <div class="table-container">
+
+    <div class="table-container table-view">
       <div style="overflow-x: auto">
         <table>
           <tr>
@@ -96,28 +102,30 @@
         </table>
       </div>
     </div>
-    
-    <h2>Console -- Scroll down to read all console messages --</h3>
-    <div class="console">
-    </div>
 
-    <button class="show-modal">Show modal 1</button>
-    <button class="show-modal">Show modal 2</button>
-    <button class="show-modal">Show modal 3</button>
-
-    <div class="modal hidden">
-      <button class="close-modal">&times;</button>
-      <h1>I'm a modal window 😍</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum.
+      <h2 class="table-view">Console -- Scroll down to read all console messages --</h3>
+        <div class="console table-view">
+        </div>
+        
+        <div class="modal hidden">
+          <button class="close-modal">&times;</button>
+          <h1>Sign In to your Google Account and download your Google Spreadsheet</h1>
+          <p>
+            <div class="topnav">
+              
+              <p>Enter the link to your spreadsheet:</p>
+              <input type="text" id="spreadseet-link">
+            </div>
+        <button class="show-modal" id="btn-google-login">Google Authorize</button>
+        <button class="show-modal" id="btn-google-signout">Sign Out</button>
+        
       </p>
     </div>
+
+    <div class="chart-view">
+      <h1>This is a chart view</h1>
+    </div>
+
     <div class="overlay hidden"></div>
 
     <!-- <script type="module" src="script.js"></script> -->
@@ -126,7 +134,7 @@
     <script src="script.js""></script>
 
     <!-- Google API libraries -->
-    <!-- <script
+    <script
     async
     defer
     src="https://apis.google.com/js/api.js"
@@ -137,7 +145,7 @@
     defer
     src="https://accounts.google.com/gsi/client"
     onload="gisLoaded()"
-  ></script> -->
+  ></script>
 
   </body>
 </html>
