@@ -264,8 +264,18 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.footer {
-  height: 100%;
+.days-chart {
+  font-size: 2em;
+  margin: 10px 0px;
+}
+.days-chart label {
+  margin-left: 5em;
+}
+
+.days-chart input {
+  margin-top: 12px;
+  font-size: 1em;
+  width: 3em;
 }
 
 .table-view {
@@ -273,5 +283,13 @@ input:checked + .slider:before {
 }
 
 .chart-view {
+  display: none;
+}
+
+.wallet-address-label h2 {
+  text-align: center;
+}
+.loading-label h1 {
+  text-align: center;
   display: none;
 }

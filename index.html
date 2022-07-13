@@ -14,6 +14,7 @@
 
     <!-- Extended libraries and modules -->
     <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   </head>
   <body>
@@ -32,8 +33,8 @@
 
       <div class="search-container">
         <!-- <form action="/action_page.php"> -->
-        <input type="text" placeholder="Search.." name="search" />
-        <button type="submit"><i class="fa fa-search"></i></button>
+        <input type="text" placeholder="Search.." name="search" id = "search"/>
+        <button type="submit" id="btn-search"><i class="fa fa-search"></i></button>
         <!-- </form> -->
       </div>
     </div>
@@ -48,18 +49,18 @@
             <th>
               <img src="./tokens_images/hex_32.webp" width="24px" alt="" />
             </th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
-            <th>Points</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
           </tr>
           <tr>
-            <td>Jill</td>
-            <td>Smith</td>
+            <td>1</td>
+            <td>WALLET'S NAME</td>
             <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
             <td>50</td>
             <td>50</td>
@@ -72,9 +73,9 @@
             <td>50</td>
           </tr>
           <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
+            <td>2</td>
+            <td>WALLET'S NAME</td>
+            <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
             <td>94</td>
             <td>94</td>
             <td>94</td>
@@ -86,9 +87,9 @@
             <td>94</td>
           </tr>
           <tr>
-            <td>Adam</td>
-            <td>Johnson</td>
-            <td>67</td>
+            <td>3</td>
+            <td>WALLET'S NAME</td>
+            <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
             <td>67</td>
             <td>67</td>
             <td>67</td>
@@ -122,9 +123,18 @@
       </p>
     </div>
 
-    <div class="chart-view">
-      <h1>This is a chart view</h1>
-    </div>
+      <div class="chart-view topnav days-chart">
+        <label for="days">Enter the quantity days to check the balances:</label>
+        <input type="number" id="days-before" name="days" min="1" value = "14">
+        <p id="btn-show-charts">SHOW CHARTS</p>
+      </div>
+      <div class="chart-view wallet-address-label">
+        <h2>Wallet address: </h2>
+      </div>
+      <div class="chart-view loading-label">
+        <h1>Loading...</h1>
+      </div>
+      <div class="charts" id="charts-area"></div>
 
     <div class="overlay hidden"></div>
 

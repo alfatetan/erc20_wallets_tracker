@@ -1,29 +1,25 @@
 'use strict';
 
-// import { tokens, moralisAPI, googleAPI } from './config.js';
+const readyCharts = [];
 
-const modal = document.querySelector('.modal');
-const overlay = document.querySelector('.overlay');
-const btnCloseModal = document.querySelector('.close-modal');
-// const btnsOpenModal = document.querySelectorAll('.show-modal');
-const btnsOpenModal = document.getElementById('btn-gsheets-ld');
+// import { tokens } from './config_template';
 
-const openModal = function () {
-  modal.classList.remove('hidden');
-  overlay.classList.remove('hidden');
-};
+// Start Moralis API
+Moralis.start(moralisAPI);
+// Moralis.settings.setAPIRateLimit({
+//   anonymous: 10,
+//   authenticated: 20,
+//   windowMs: 60000,
+// });
 
-const closeModal = function () {
-  modal.classList.add('hidden');
-  overlay.classList.add('hidden');
+// The current wallet what we'll use to show the information
+const currentWallet = {
+  walletAddress: getUserWallet(),
+  name: "The current user's wallet address",
+  balances: [],
 };
 
 //-------------------------------------------------------------------------------------------
-
-console.log(tokens, moralisAPI, googleAPI);
-
-console.log(moralisAPI.serverUrl);
-// Moralis.start({moralisAPI.serverUrl, })
 
 function consoleMsg(...messages) {
   for (let i = 0; i < messages.length; i++) {
@@ -35,8 +31,6 @@ function consoleMsg(...messages) {
 }
 
 consoleMsg('Welcome to aboard! Connect to Metamask and lets beginning!!!');
-
-Moralis.start(moralisAPI);
 
 // Connect to Metamask needed for a first time while program works
 document
@@ -82,4 +76,49 @@ document
         el.style.display = 'none';
       });
     }
+  });
+
+document
+  .querySelector('#btn-search')
+  .addEventListener('click', async function () {
+    const wallet = document.querySelector('#search').value || getUserWallet();
+    currentWallet.walletAddress = wallet;
+    const currentTokensBalance = await Moralis.Web3API.account.getTokenBalances(
+      {
+        address: wallet,
+      }
+    );
+    // Show the wallet as a label over the charts
+    document.querySelector(
+      '.wallet-address-label h2'
+    ).textContent = `Wallet address: ${wallet}`;
+
+    if (wallet && currentTokensBalance) {
+      console.log(wallet);
+      document.querySelector('#table-chart-view').click();
+      // document.querySelector('#btn-show-charts').click();
+    } else {
+      consoleMsg('ERROR! Empty or wrong wallet number!');
+    }
+  });
+
+document
+  .querySelector('#btn-show-charts')
+  .addEventListener('click', async function (wallet = '') {
+    for (let i = 0; i < readyCharts.length; i++) {
+      readyCharts[i].destroy();
+    }
+
+    const loadingLabel = document.querySelector('.loading-label h1');
+    console.log('SHOW CHART button clicked');
+    const daysBefore = Number(document.querySelector('#days-before').value);
+
+    loadingLabel.style.display = 'block';
+    const chartData = await getChartData(
+      currentWallet.walletAddress,
+      daysBefore
+    );
+    loadingLabel.style.display = 'none';
+
+    chartsDraw();
   });

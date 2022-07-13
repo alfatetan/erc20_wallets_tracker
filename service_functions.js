@@ -1,7 +1,38 @@
 'use strict';
 
 // ------------------------------------------------------------
-// Google API variables
+// ----------- Time calculation functions ---------------------
+// ------------------------------------------------------------
+function getCurrentDateTimeUnix() {
+  const dateTime = Math.round(new Date().getTime() / 1000);
+  return dateTime;
+}
+
+function getDatesArray(daysBefore = 1, step = 86400) {
+  // add the milliseconds. 1 day = 86400 seconds or 86400000 milliseconds
+  step = step;
+
+  const now = new Date();
+  const currentDay = now.getDate() < 9 ? `0` + now.getDate() : now.getDate();
+  const currentMonth =
+    now.getMonth() < 9 ? `0` + (now.getMonth() + 1) : now.getMonth + 1;
+  const currentYear = now.getFullYear();
+
+  const dayBegan = `${currentYear}-${currentMonth}-${currentDay}T00:00:00.000Z`;
+  let previousDay = Math.round((new Date(dayBegan) - 501) / 1000);
+
+  const days = [Math.round(now.getTime() / 1000), previousDay]; // return array of dates
+
+  for (let i = 1; i < daysBefore; i++) {
+    previousDay = previousDay - step;
+    days.push(previousDay);
+  }
+
+  return days;
+}
+
+// ------------------------------------------------------------
+// --------------- Google API variables -----------------------
 // ------------------------------------------------------------
 let tokenClient;
 let gapiInited = false;
@@ -179,6 +210,71 @@ btnGoogleSignOut.addEventListener('click', function () {
   handleSignoutClick();
 });
 
+// -------------------------------------------------------------
+// ----- Token calculation functions and Wallets functions -----
+// -------------------------------------------------------------
+function getUserWallet() {
+  // return the user's connected wallet adderess
+  const userWallet = Moralis.User.current().get('ethAddress');
+  return userWallet;
+}
+
+async function getTokensBalance(wallet, dateTime) {
+  // get the block number from the dateTime. dateTime is array of Unix timestamps
+  const block = await Moralis.Web3API.native.getDateToBlock({ date: dateTime });
+  //   console.log(`The block number is ${block.block}`);
+
+  const tokenBalances = await Moralis.Web3API.account.getTokenBalances({
+    address: wallet,
+    to_block: block.block,
+  });
+  console.log(`The token balances for wallet ${wallet} is ${tokenBalances}`);
+  console.log(tokenBalances);
+
+  const balanceOnDate = {
+    dateTime: dateTime,
+    block: block.block,
+    balance: tokenBalances,
+  };
+
+  return balanceOnDate;
+}
+
+async function getTokensHistory(wallet, daysBefore, step = 86400) {
+  const walletHistory = {
+    walletAddress: wallet,
+    tokenBalances: [],
+  };
+
+  const dates = getDatesArray(daysBefore, step);
+  //   console.log(dates);
+  for (let i = 0; i < dates.length; i++) {
+    const balance = await getTokensBalance(wallet, dates[i]);
+    walletHistory.tokenBalances.push(balance);
+  }
+  return walletHistory;
+}
+
+// ------------------------------------------------------------
+// ------------- Work with modal window -----------------------
+// ------------------------------------------------------------
+
+const modal = document.querySelector('.modal');
+const overlay = document.querySelector('.overlay');
+const btnCloseModal = document.querySelector('.close-modal');
+// const btnsOpenModal = document.querySelectorAll('.show-modal');
+const btnsOpenModal = document.getElementById('btn-gsheets-ld');
+
+const openModal = function () {
+  modal.classList.remove('hidden');
+  overlay.classList.remove('hidden');
+};
+
+const closeModal = function () {
+  modal.classList.add('hidden');
+  overlay.classList.add('hidden');
+};
+
 // ****************************************************************
 // table rendering
 // the example was taken from https://www.fwait.com/how-to-create-table-from-an-array-of-objects-in-javascript/
@@ -252,4 +348,162 @@ function tableRender(tmpWalletsListFull) {
   };
   const tableHeader = ['Wallet name', 'Wallet address', ...getAllTokens()];
   console.log(tableHeader);
+}
+
+// ------------------------------------------------------------
+// -- Data Compiling and structuring to show in on the charts -
+// ------------------------------------------------------------
+
+function getDigitBalance(balance, decimals) {
+  // Input balance:str and decimals: str
+  // Output didtBalane: float
+  let digitBalance = `${balance.slice(
+    0,
+    balance.length - decimals
+  )}.${balance.slice(-decimals)}`;
+  digitBalance = Number(digitBalance).toFixed(3);
+  digitBalance = Number(digitBalance);
+  return digitBalance;
+}
+
+function tokenCalculation(tokenView, tokenAddresses, walletHistory) {
+  // return the calculation of the token for the days
+  // tokenAddresses - is array of token's addresses
+
+  const result = {
+    tokenView: tokenView,
+    balance: [],
+  };
+
+  for (let i = 0; i < walletHistory.tokenBalances.length; i++) {
+    const dateTime = walletHistory.tokenBalances[i].dateTime;
+    const block = walletHistory.tokenBalances[i].block;
+    const balance = walletHistory.tokenBalances[i].balance;
+    let count = 0;
+
+    for (let j = 0; j < balance.length; j++) {
+      for (let k = 0; k < tokenAddresses.length; k++) {
+        const configTokenAddress = tokenAddresses[k].toLowerCase();
+        if (configTokenAddress === balance[j].token_address.toLowerCase()) {
+          count += getDigitBalance(balance[j].balance, balance[j].decimals);
+        }
+      }
+    }
+    result.balance.push({
+      dateTime: dateTime,
+      block: block,
+      balance: count,
+    });
+  }
+  return result;
+}
+
+// Tokens chart calculation from configuration file
+async function getChartData(wallet, daysBefore) {
+  currentWallet.walletAddress = wallet;
+  const history = await getTokensHistory(wallet, daysBefore);
+  for (let i = 0; i < tokens.length; i++) {
+    const calculation = tokenCalculation(
+      tokens[i].token_view,
+      tokens[i].token_addresses,
+      history
+    );
+    currentWallet.balances.push(calculation);
+  }
+}
+
+// ------------------------------------------------------------
+// ------------------- Charts drawing -------------------------
+// ------------------------------------------------------------
+
+function addChartElement(chartsName) {
+  const chartsArea = document.getElementById('charts-area');
+  const chart = document.createElement('div');
+  chartsArea.setAttribute('class', 'chart');
+  chart.innerHTML = `<canvas id="${chartsName}"></canvas>`;
+
+  chartsArea.appendChild(chart);
+}
+
+function getLabelsAndSortChartsData() {
+  const balances = currentWallet.balances;
+  const result = [];
+  for (let i = 0; i < balances.length; i++) {
+    const sortedData = {};
+    sortedData.tokenView = balances[i].tokenView;
+
+    const labels = [];
+    for (let j = 0; j < balances[i].balance.length; j++) {
+      labels.push(balances[i].balance[j].dateTime);
+    }
+
+    // Sort labels for the dateTime
+    labels.sort(function (a, b) {
+      return a - b;
+    });
+
+    sortedData.labels = labels;
+
+    const drawingData = [];
+    // Sorting data in the order of the dateTime
+    for (let j = 0; j < labels.length; j++) {
+      const findBalance = balances[i].balance.find(
+        el => el.dateTime === labels[j]
+      );
+      drawingData.push(findBalance.balance);
+    }
+    sortedData.data = drawingData;
+    result.push(sortedData);
+  }
+  return result;
+}
+
+function chartConfigTransform(chartSortedData) {
+  const dates = [];
+  for (let i = 0; i < chartSortedData.labels.length; i++) {
+    const transformDate = new Date(chartSortedData.labels[i] * 1000);
+    const day =
+      transformDate.getDate() < 9
+        ? `0` + transformDate.getDate()
+        : transformDate.getDate();
+    const month =
+      transformDate.getMonth() < 9
+        ? `0` + (transformDate.getMonth() + 1)
+        : transformDate.getMonth + 1;
+    dates.push(`${month}/${day}`);
+  }
+
+  const readyData = {
+    labels: dates,
+    datasets: [
+      {
+        label: chartSortedData.tokenView,
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: chartSortedData.data,
+      },
+    ],
+  };
+
+  return readyData;
+}
+
+function chartsDraw() {
+  for (let i = 0; i < currentWallet.balances.length; i++) {
+    const chartId = currentWallet.balances[i].tokenView;
+    addChartElement(chartId);
+  }
+
+  const dataAndLabels = getLabelsAndSortChartsData();
+  for (let i = 0; i < dataAndLabels.length; i++) {
+    const chartReadyData = chartConfigTransform(dataAndLabels[i]);
+    const chartConfig = {
+      type: 'line',
+      data: chartReadyData,
+      options: {},
+    };
+    const elementId = chartReadyData.datasets[0].label;
+    const myChart = new Chart(document.getElementById(elementId), chartConfig);
+    readyCharts.push(myChart);
+  }
 }
