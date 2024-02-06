@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <title>ERC20 Wallets Balances Tracker</title>
+
+    <!-- Extended libraries and modules -->
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">ERC20 Wallets Balances Tracker</h1>
+    </header>
+    <div class="topnav">
+      <p class="active" id="btn-connect-mm">Connect Metamask</p>
+      <p id="btn-gsheets-ld">Load spreadsheet</p>
+      <p>Load balances</p>
+      
+      <label class="switch">
+        <input type="checkbox" id="table-chart-view">
+        <span class="slider round"></span>
+      </label>
+
+      <div class="search-container">
+        <!-- <form action="/action_page.php"> -->
+        <input type="text" placeholder="Search.." name="search" id = "search"/>
+        <button type="submit" id="btn-search"><i class="fa fa-search"></i></button>
+        <!-- </form> -->
+      </div>
+    </div>
+
+    <div class="table-container table-view">
+      <div style="overflow-x: auto">
+        <table>
+          <tr>
+            <th>#</th>
+            <th>Wallets' name</th>
+            <th>Wallet Address</th>
+            <th>
+              <img src="./tokens_images/hex_32.webp" width="24px" alt="" />
+            </th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+            <th>Amount</th>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>WALLET'S NAME</td>
+            <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>WALLET'S NAME</td>
+            <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+            <td>94</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>WALLET'S NAME</td>
+            <td>0x4091aA677A4891DdEDC801bD5cAfA4cdA2A866E4</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+            <td>67</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+      <h2 class="table-view">Console -- Scroll down to read all console messages --</h3>
+        <div class="console table-view">
+        </div>
+        
+        <div class="modal hidden">
+          <button class="close-modal">&times;</button>
+          <h1>Sign In to your Google Account and download your Google Spreadsheet</h1>
+          <p>
+            <div class="topnav">
+              
+              <p>Enter the link to your spreadsheet:</p>
+              <input type="text" id="spreadseet-link">
+            </div>
+        <button class="show-modal" id="btn-google-login">Google Authorize</button>
+        <button class="show-modal" id="btn-google-signout">Sign Out</button>
+        
+      </p>
+    </div>
+
+      <div class="chart-view topnav days-chart">
+        <label for="days">Enter the quantity days to check the balances:</label>
+        <input type="number" id="days-before" name="days" min="1" value = "14">
+        <p id="btn-show-charts">SHOW CHARTS</p>
+      </div>
+      <div class="chart-view wallet-address-label">
+        <h2>Wallet address: </h2>
+      </div>
+      <div class="chart-view loading-label">
+        <h1>Loading...</h1>
+      </div>
+      <div class="charts" id="charts-area"></div>
+
+    <div class="overlay hidden"></div>
+
+    <!-- <script type="module" src="script.js"></script> -->
+    <script src="config.js""></script>
+    <script src="service_functions.js"></script>
+    <script src="script.js""></script>
+
+    <!-- Google API libraries -->
+    <script
+    async
+    defer
+    src="https://apis.google.com/js/api.js"
+    onload="gapiLoaded()"
+  ></script>
+  <script
+    async
+    defer
+    src="https://accounts.google.com/gsi/client"
+    onload="gisLoaded()"
+  ></script>
+
+  </body>
+</html>
